@@ -75,30 +75,30 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-md">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-background/30 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 ring-1 ring-white/20">
               <Mountain className="h-5 w-5" strokeWidth={2.25} />
             </div>
             <div className="leading-tight">
-              <p className="text-[15px] font-semibold tracking-tight text-foreground">
+              <p className="text-[15px] font-semibold tracking-tight text-white drop-shadow">
                 Altas Montañas
               </p>
-              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/70">
                 Explorer
               </p>
             </div>
           </div>
-          <div className="hidden items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground sm:flex">
-            <MapPin className="h-3.5 w-3.5 text-primary" />
+          <div className="hidden items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur sm:flex">
+            <MapPin className="h-3.5 w-3.5 text-primary-foreground" />
             Córdoba · Orizaba, Veracruz
           </div>
         </div>
       </header>
 
       <main>
-        <section className="relative overflow-hidden">
+        <section className="relative -mt-[73px] flex min-h-[100svh] items-center overflow-hidden pt-[73px]">
           <div className="absolute inset-0 -z-10">
             <img
               src={heroImage}
@@ -107,28 +107,29 @@ function Index() {
               height={1280}
               className="h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-background" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.45)_100%)]" />
           </div>
 
-          <div className="mx-auto max-w-3xl px-4 pb-16 pt-20 sm:px-6 sm:pb-24 sm:pt-28">
+          <div className="mx-auto w-full max-w-3xl px-4 pb-20 pt-12 sm:px-6 sm:pb-28 sm:pt-20">
             <div className="text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-3 py-1 text-xs font-medium text-foreground/80 backdrop-blur">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium text-white/95 backdrop-blur-md">
+                <Sparkles className="h-3.5 w-3.5 text-amber-300" />
                 Guía de viaje con IA
               </span>
-              <h1 className="mt-5 text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-                Explora las Altas Montañas
+              <h1 className="mt-5 text-balance text-5xl font-bold tracking-tight text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)] sm:text-6xl md:text-7xl">
+                Explora las <span className="bg-gradient-to-r from-amber-200 via-orange-300 to-amber-400 bg-clip-text text-transparent">Altas Montañas</span>
               </h1>
-              <p className="mx-auto mt-4 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
+              <p className="mx-auto mt-5 max-w-xl text-pretty text-base text-white/85 drop-shadow sm:text-lg">
                 Lugares, rutas y secretos locales de Córdoba y Orizaba, a un mensaje de distancia.
               </p>
             </div>
 
             <form
               onSubmit={onSubmit}
-              className="mx-auto mt-8 flex w-full max-w-2xl items-center gap-2 rounded-2xl border border-border bg-card p-2 shadow-lg shadow-foreground/5 transition focus-within:border-primary/60 focus-within:shadow-xl"
+              className="mx-auto mt-10 flex w-full max-w-2xl items-center gap-2 rounded-2xl border border-white/30 bg-white/15 p-2 shadow-2xl shadow-black/40 backdrop-blur-2xl transition focus-within:border-white/60 focus-within:bg-white/20"
             >
-              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-muted-foreground">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-white/80">
                 <Search className="h-5 w-5" />
               </div>
               <input
@@ -136,12 +137,12 @@ function Index() {
                 onChange={(e) => setPrompt(e.target.value)}
                 disabled={loading}
                 placeholder="¿Qué lugar de Córdoba u Orizaba quieres explorar hoy?"
-                className="min-w-0 flex-1 bg-transparent py-2 text-[15px] text-foreground placeholder:text-muted-foreground/80 focus:outline-none disabled:opacity-60"
+                className="min-w-0 flex-1 bg-transparent py-2 text-[15px] text-white placeholder:text-white/60 focus:outline-none disabled:opacity-60"
               />
               <button
                 type="submit"
                 disabled={loading || !prompt.trim()}
-                className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-br from-primary to-primary/80 px-5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/40 transition hover:scale-[1.02] hover:shadow-primary/60 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -154,14 +155,14 @@ function Index() {
               </button>
             </form>
 
-            <div className="mx-auto mt-5 flex max-w-2xl flex-wrap justify-center gap-2">
+            <div className="mx-auto mt-6 flex max-w-2xl flex-wrap justify-center gap-2">
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => submit(s)}
                   disabled={loading}
-                  className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur transition hover:border-primary/40 hover:text-foreground disabled:opacity-50"
+                  className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-md transition hover:border-white/50 hover:bg-white/20 disabled:opacity-50"
                 >
                   {s}
                 </button>
