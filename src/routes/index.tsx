@@ -15,8 +15,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-// TODO: replace with your Hugging Face Space URL (no trailing slash).
-const API_URL = "https://YOUR-HF-SPACE.hf.space";
+const API_URL = "https://jorgetuz-ras-api-backend.hf.space";
 
 type Message = {
   id: number;
