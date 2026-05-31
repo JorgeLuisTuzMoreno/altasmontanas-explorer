@@ -97,7 +97,7 @@ function Index() {
         </div>
       </header>
 
-      <main>
+      <main className="bg-background">
         <section className="relative -mt-[73px] flex min-h-[100svh] items-center overflow-hidden pt-[73px]">
           <div className="absolute inset-0 z-0">
             <img
