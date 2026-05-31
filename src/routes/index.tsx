@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect, type FormEvent } from "react";
-import { Mountain, Search, Sparkles, Loader2, MapPin } from "lucide-react";
+import { Mountain, Search, Sparkles, Loader2, MapPin, Coffee, Trees, Landmark, UtensilsCrossed, ExternalLink } from "lucide-react";
 import heroImage from "@/assets/hero-mountains.jpg";
 
 export const Route = createFileRoute("/")({
@@ -29,6 +29,41 @@ const SUGGESTIONS = [
   "Ruta de un día por Orizaba",
   "Comida típica de la región",
 ];
+
+const CATEGORIES = [
+  {
+    key: "cafes",
+    label: "Cafés",
+    description: "Tuestes locales y rincones acogedores",
+    icon: Coffee,
+    prompt: "Recomiéndame los mejores cafés de Córdoba y Orizaba",
+    gradient: "from-amber-500/90 to-orange-600/90",
+  },
+  {
+    key: "naturaleza",
+    label: "Naturaleza",
+    description: "Cascadas, volcanes y senderos",
+    icon: Trees,
+    prompt: "Lugares naturales imperdibles cerca de Orizaba",
+    gradient: "from-emerald-500/90 to-green-700/90",
+  },
+  {
+    key: "historia",
+    label: "Historia",
+    description: "Monumentos, museos y leyendas",
+    icon: Landmark,
+    prompt: "Sitios históricos para visitar en Córdoba, Veracruz",
+    gradient: "from-slate-500/90 to-slate-700/90",
+  },
+  {
+    key: "gastronomia",
+    label: "Gastronomía",
+    description: "Sabores típicos de la región",
+    icon: UtensilsCrossed,
+    prompt: "Qué platillos típicos debo probar en la región de las Altas Montañas",
+    gradient: "from-rose-500/90 to-red-700/90",
+  },
+] as const;
 
 function Index() {
   const [prompt, setPrompt] = useState("");
@@ -171,31 +206,77 @@ function Index() {
           </div>
         </section>
 
-        <section ref={resultsRef} className="mx-auto max-w-3xl px-4 pb-24 sm:px-6">
-          {error && (
-            <div className="mb-4 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-              {error}
-            </div>
-          )}
+        <section
+          ref={resultsRef}
+          className="relative -mt-16 pb-20 pt-12 sm:pb-24"
+          style={{ backgroundColor: "#F1F3F5" }}
+        >
+          <div className="mx-auto max-w-3xl px-4 sm:px-6">
+            <div className="rounded-3xl border border-white/60 bg-white/60 p-5 shadow-xl shadow-slate-900/5 backdrop-blur-xl sm:p-8">
+              {error && (
+                <div className="mb-4 animate-fade-in rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                  {error}
+                </div>
+              )}
 
-          {messages.length === 0 && !loading && (
-            <div className="rounded-2xl border border-dashed border-border bg-card/50 p-8 text-center">
-              <p className="text-sm text-muted-foreground">
-                Tus descubrimientos aparecerán aquí. Empieza con una pregunta arriba.
-              </p>
-            </div>
-          )}
+              {messages.length === 0 && !loading && (
+                <div className="animate-fade-in">
+                  <div className="mb-6 text-center">
+                    <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                      Explora por categoría
+                    </h2>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Elige un tema y deja que tu guía local te inspire.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    {CATEGORIES.map((c) => {
+                      const Icon = c.icon;
+                      return (
+                        <button
+                          key={c.key}
+                          type="button"
+                          onClick={() => submit(c.prompt)}
+                          disabled={loading}
+                          className={`group relative flex aspect-[5/4] flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br ${c.gradient} p-4 text-left text-white shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-50 sm:p-5`}
+                        >
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md ring-1 ring-white/30">
+                            <Icon className="h-5 w-5" strokeWidth={2.25} />
+                          </div>
+                          <div>
+                            <p className="text-base font-semibold tracking-tight sm:text-lg">
+                              {c.label}
+                            </p>
+                            <p className="mt-0.5 text-xs text-white/85 sm:text-[13px]">
+                              {c.description}
+                            </p>
+                          </div>
+                          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl transition group-hover:bg-white/20" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
-          <div className="space-y-4">
-            {messages.map((m) => (
-              <MessageBubble key={m.id} message={m} />
-            ))}
-            {loading && <LoadingBubble />}
+              <div className="space-y-4">
+                {messages.map((m) => (
+                  <div key={m.id} className="animate-fade-in">
+                    <MessageBubble message={m} />
+                  </div>
+                ))}
+                {loading && (
+                  <div className="animate-fade-in">
+                    <LoadingBubble />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-border/60 py-8">
+      <footer className="border-t border-border/60 bg-background py-14">
         <div className="mx-auto max-w-6xl px-4 text-center text-xs text-muted-foreground sm:px-6">
           Hecho con cariño para los viajeros de las Altas Montañas · Veracruz, México
         </div>
@@ -214,6 +295,7 @@ function MessageBubble({ message }: { message: Message }) {
       </div>
     );
   }
+  const place = extractPlace(message.text);
   return (
     <article className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <div className="mb-3 flex items-center gap-2">
@@ -224,10 +306,57 @@ function MessageBubble({ message }: { message: Message }) {
           Guía local
         </span>
       </div>
-      <div className="whitespace-pre-wrap text-[15px] leading-relaxed text-card-foreground">
-        {message.text}
-      </div>
+      {place ? (
+        <InfoCard title={place.title} description={place.description} />
+      ) : (
+        <div className="whitespace-pre-wrap text-[15px] leading-relaxed text-card-foreground">
+          {message.text}
+        </div>
+      )}
     </article>
+  );
+}
+
+function extractPlace(text: string): { title: string; description: string } | null {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  // Heuristic: first short line as title, rest as description.
+  const lines = trimmed.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length < 2) return null;
+  const first = lines[0].replace(/^[#*•\-\d.\s]+/, "");
+  if (first.length === 0 || first.length > 80) return null;
+  const rest = lines.slice(1).join("\n");
+  if (rest.length < 30) return null;
+  return { title: first, description: rest };
+}
+
+function InfoCard({ title, description }: { title: string; description: string }) {
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    title + " Veracruz",
+  )}`;
+  return (
+    <div className="overflow-hidden rounded-xl border border-border/70 bg-gradient-to-br from-background to-muted/40">
+      <div className="flex items-start gap-4 p-5">
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+          <MapPin className="h-5 w-5" strokeWidth={2.25} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-lg font-semibold tracking-tight text-foreground">{title}</h3>
+          <p className="mt-1.5 whitespace-pre-wrap text-[14.5px] leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground shadow-sm transition hover:bg-accent"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Abrir en Maps
+          </a>
+        </div>
+      </div>
+    </div>
   );
 }
 
