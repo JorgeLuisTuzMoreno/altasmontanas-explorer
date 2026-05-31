@@ -74,7 +74,7 @@ function Index() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b border-white/10 bg-background/30 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2.5">
@@ -97,9 +97,9 @@ function Index() {
         </div>
       </header>
 
-      <main>
+      <main className="bg-background">
         <section className="relative -mt-[73px] flex min-h-[100svh] items-center overflow-hidden pt-[73px]">
-          <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 z-0">
             <img
               src={heroImage}
               alt="Sierra de las Altas Montañas con el Pico de Orizaba al fondo"
@@ -111,7 +111,7 @@ function Index() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.45)_100%)]" />
           </div>
 
-          <div className="mx-auto w-full max-w-3xl px-4 pb-20 pt-12 sm:px-6 sm:pb-28 sm:pt-20">
+          <div className="relative z-10 mx-auto w-full max-w-3xl px-4 pb-20 pt-12 sm:px-6 sm:pb-28 sm:pt-20">
             <div className="text-center">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium text-white/95 backdrop-blur-md">
                 <Sparkles className="h-3.5 w-3.5 text-amber-300" />
