@@ -245,7 +245,7 @@ function Index() {
                       Elige un tema y deja que tu guía local te inspire.
                     </p>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
                     {CATEGORIES.map((c) => {
                       const Icon = c.icon;
                       return (
@@ -254,20 +254,19 @@ function Index() {
                           type="button"
                           onClick={() => submit(c.prompt)}
                           disabled={loading}
-                          className={`group relative flex aspect-[5/4] flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br ${c.gradient} p-4 text-left text-white shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-50 sm:p-5`}
+                          className={`group flex flex-col items-center gap-3 rounded-2xl border ${c.border} ${c.hoverBorder} bg-white/70 p-4 text-center shadow-sm ${c.shadowColor} backdrop-blur-sm transition-all hover:-translate-y-1 hover:bg-white hover:shadow-lg disabled:opacity-50 md:flex-row md:items-start md:text-left md:py-5 md:px-4`}
                         >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md ring-1 ring-white/30">
-                            <Icon className="h-5 w-5" strokeWidth={2.25} />
+                          <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl ${c.iconBg} ring-1 ring-black/5`}>
+                            <Icon className={`h-4 w-4 ${c.color}`} strokeWidth={2.25} />
                           </div>
-                          <div>
-                            <p className="text-base font-semibold tracking-tight sm:text-lg">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold tracking-tight text-foreground">
                               {c.label}
                             </p>
-                            <p className="mt-0.5 text-xs text-white/85 sm:text-[13px]">
+                            <p className="mt-0.5 hidden text-xs text-muted-foreground md:block">
                               {c.description}
                             </p>
                           </div>
-                          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl transition group-hover:bg-white/20" />
                         </button>
                       );
                     })}
