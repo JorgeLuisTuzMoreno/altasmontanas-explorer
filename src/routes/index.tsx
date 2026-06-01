@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef, useEffect, type FormEvent } from "react";
+import React, { useState, useRef, useEffect, type FormEvent } from "react";
 import { Mountain, Search, Sparkles, Loader2, MapPin, Coffee, Trees, Landmark, UtensilsCrossed, ExternalLink } from "lucide-react";
 import heroImage from "@/assets/hero-mountains.jpg";
 
@@ -86,13 +86,16 @@ function Index() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
   const resultsRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Auto-scroll al final del chat cuando hay nuevos mensajes
   useEffect(() => {
     if (messages.length > 0) {
-      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [messages.length]);
+  }, [messages]);
 
   async function submit(value: string) {
     const q = value.trim();
@@ -285,7 +288,34 @@ function Index() {
                     <LoadingBubble />
                   </div>
                 )}
+                <div ref={messagesEndRef} />
               </div>
+
+              {/* INPUT SECUNDARIO INFERIOR - Aparece cuando la conversación inició */}
+              {messages.length > 0 && (
+                <div className="mt-6 animate-fade-in border-t border-border/40 pt-5">
+                  <form
+                    onSubmit={onSubmit}
+                    className="flex items-center gap-2 rounded-2xl border border-border/60 bg-white/50 p-2 shadow-sm transition-all focus-within:border-primary/40 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/10"
+                  >
+                    <input
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      disabled={loading}
+                      placeholder="Escribe otra pregunta o continúa la charla..."
+                      className="flex-1 bg-transparent px-3 py-2 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-60"
+                    />
+                    <button
+                      type="submit"
+                      disabled={loading || !prompt.trim()}
+                      className="flex h-10 items-center justify-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enviar"}
+                    </button>
+                  </form>
+                </div>
+              )}
+
             </div>
           </div>
         </section>
@@ -346,9 +376,9 @@ function extractPlace(text: string): { title: string; description: string } | nu
 }
 
 function InfoCard({ title, description }: { title: string; description: string }) {
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    title + " Veracruz",
-  )}`;
+  // Corrección de sintaxis en la URL de Maps para evitar un enlace roto
+  const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(title + " Veracruz")}`;
+  
   return (
     <div className="overflow-hidden rounded-xl border border-border/70 bg-gradient-to-br from-background to-muted/40">
       <div className="flex items-start gap-4 p-5">
