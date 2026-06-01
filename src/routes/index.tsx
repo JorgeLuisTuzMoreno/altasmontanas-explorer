@@ -15,7 +15,8 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const API_URL = "https://jorgetuz-api-turismo.hf.space";
+// Variable dinámica: Si VITE_API_URL existe, la usa (Local). Si no, usa Hugging Face (Nube).
+const API_URL = import.meta.env.VITE_API_URL || "https://jorgetuz-api-turismo.hf.space";
 
 type Message = {
   id: number;
@@ -116,7 +117,7 @@ function Index() {
       const reply = data?.respuesta ?? "No se recibió respuesta.";
       setMessages((m) => [...m, { id: Date.now() + 1, role: "assistant", text: String(reply) }]);
     } catch (e) {
-      setError("No pudimos conectar con el guía. Revisa la URL de la API e intenta de nuevo.");
+      setError("No pudimos conectar con el guía. Revisa la conexión e intenta de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -291,7 +292,7 @@ function Index() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* INPUT SECUNDARIO INFERIOR - Aparece cuando la conversación inició */}
+              {/* INPUT SECUNDARIO INFERIOR */}
               {messages.length > 0 && (
                 <div className="mt-6 animate-fade-in border-t border-border/40 pt-5">
                   <form
@@ -355,7 +356,7 @@ function MessageBubble({ message }: { message: Message }) {
         <InfoCard title={place.title} description={place.description} />
       ) : (
         <div className="whitespace-pre-wrap text-[15px] leading-relaxed text-card-foreground">
-          {message.text}
+          <TypewriterText text={message.text} />
         </div>
       )}
     </article>
@@ -376,8 +377,8 @@ function extractPlace(text: string): { title: string; description: string } | nu
 }
 
 function InfoCard({ title, description }: { title: string; description: string }) {
-  // Corrección de sintaxis en la URL de Maps para evitar un enlace roto
-  const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(title + " Veracruz")}`;
+  // Corrección oficial a la URL de Google Maps para buscar la locación correcta
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(title + " Veracruz")}`;
   
   return (
     <div className="overflow-hidden rounded-xl border border-border/70 bg-gradient-to-br from-background to-muted/40">
@@ -388,7 +389,7 @@ function InfoCard({ title, description }: { title: string; description: string }
         <div className="min-w-0 flex-1">
           <h3 className="text-lg font-semibold tracking-tight text-foreground">{title}</h3>
           <p className="mt-1.5 whitespace-pre-wrap text-[14.5px] leading-relaxed text-muted-foreground">
-            {description}
+            <TypewriterText text={description} />
           </p>
           <a
             href={mapsUrl}
@@ -419,4 +420,52 @@ function LoadingBubble() {
       </div>
     </div>
   );
+}
+
+// NUEVAS FUNCIONES PARA EL FRONTEND (Markdown y Typewriter)
+
+// Función para procesar negritas (**texto**) y saltos de línea (\n)
+function formatMessage(text: string) {
+  return text.split('\n').map((line, lineIndex, array) => {
+    const parts = line.split(/(\*\*.*?\*\*)/g);
+    
+    return (
+      <span key={lineIndex}>
+        {parts.map((part, partIndex) => {
+          if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+            return (
+              <strong key={partIndex} className="font-bold text-foreground">
+                {part.slice(2, -2)}
+              </strong>
+            );
+          }
+          return <span key={partIndex}>{part}</span>;
+        })}
+        {lineIndex < array.length - 1 && <br className="block my-1" />}
+      </span>
+    );
+  });
+}
+
+// Componente para pintar el texto letra por letra
+function TypewriterText({ text }: { text: string }) {
+  const [displayedText, setDisplayedText] = useState("");
+
+  useEffect(() => {
+    let i = 0;
+    setDisplayedText(""); 
+    
+    const timer = setInterval(() => {
+      if (i < text.length) {
+        setDisplayedText(text.substring(0, i + 1));
+        i++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 8); // Velocidad ultrarrápida a 8 milisegundos
+
+    return () => clearInterval(timer);
+  }, [text]);
+
+  return <>{formatMessage(displayedText)}</>;
 }
