@@ -24,6 +24,11 @@ type Message = {
   text: string;
 };
 
+// --- NUEVOS TIPOS PARA EL PARSEO DE MENSAJES ---
+type ParsedBlock =
+  | { type: "text"; content: string }
+  | { type: "place"; name: string; location: string; description: string };
+
 const SUGGESTIONS = [
   "Mejores cafés en Córdoba",
   "Qué hacer en el Pico de Orizaba",
@@ -91,7 +96,6 @@ function Index() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll al final del chat cuando hay nuevos mensajes
   useEffect(() => {
     if (messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -292,7 +296,6 @@ function Index() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* INPUT SECUNDARIO INFERIOR */}
               {messages.length > 0 && (
                 <div className="mt-6 animate-fade-in border-t border-border/40 pt-5">
                   <form
@@ -331,6 +334,44 @@ function Index() {
   );
 }
 
+// --- NUEVA LÓGICA DE PARSEO ---
+function parseAIResponse(text: string): ParsedBlock[] {
+  const blocks: ParsedBlock[] = [];
+  const lines = text.split('\n');
+  let currentText = '';
+
+  // Busca el patrón: viñeta (opcional), **Nombre**, (Ubicación opcional), dos puntos o guión, Descripción
+  const placeRegex = /^[•\-*]\s*\*\*(.+?)\*\*(?:\s*\((.+?)\))?\s*[:\-]\s*(.+)$/;
+
+  for (const line of lines) {
+    const match = line.match(placeRegex);
+    if (match) {
+      // Si hay texto acumulado antes de este lugar, guárdalo como bloque de texto
+      if (currentText.trim()) {
+        blocks.push({ type: "text", content: currentText.trim() });
+        currentText = '';
+      }
+      // Guarda el lugar encontrado
+      blocks.push({
+        type: "place",
+        name: match[1].trim(),
+        location: match[2] ? match[2].trim() : "",
+        description: match[3].trim(),
+      });
+    } else {
+      currentText += line + '\n';
+    }
+  }
+
+  // Si sobró texto al final (por ejemplo, la despedida), agrégalo
+  if (currentText.trim()) {
+    blocks.push({ type: "text", content: currentText.trim() });
+  }
+
+  return blocks;
+}
+
+// --- MESSAGE BUBBLE REFACTORIZADO ---
 function MessageBubble({ message }: { message: Message }) {
   if (message.role === "user") {
     return (
@@ -341,7 +382,9 @@ function MessageBubble({ message }: { message: Message }) {
       </div>
     );
   }
-  const place = extractPlace(message.text);
+
+  const blocks = parseAIResponse(message.text);
+
   return (
     <article className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <div className="mb-3 flex items-center gap-2">
@@ -352,33 +395,35 @@ function MessageBubble({ message }: { message: Message }) {
           Guía local
         </span>
       </div>
-      {place ? (
-        <InfoCard title={place.title} description={place.description} />
-      ) : (
-        <div className="whitespace-pre-wrap text-[15px] leading-relaxed text-card-foreground">
-          <TypewriterText text={message.text} />
-        </div>
-      )}
+      
+      <div className="flex flex-col gap-4">
+        {blocks.map((block, index) => {
+          if (block.type === "place") {
+            return (
+              <InfoCard 
+                key={index} 
+                name={block.name} 
+                location={block.location}
+                description={block.description} 
+              />
+            );
+          }
+          return (
+            <div key={index} className="whitespace-pre-wrap text-[15px] leading-relaxed text-card-foreground">
+              <TypewriterText text={block.content} />
+            </div>
+          );
+        })}
+      </div>
     </article>
   );
 }
 
-function extractPlace(text: string): { title: string; description: string } | null {
-  const trimmed = text.trim();
-  if (!trimmed) return null;
-  // Heuristic: first short line as title, rest as description.
-  const lines = trimmed.split(/\n+/).map((l) => l.trim()).filter(Boolean);
-  if (lines.length < 2) return null;
-  const first = lines[0].replace(/^[#*•\-\d.\s]+/, "");
-  if (first.length === 0 || first.length > 80) return null;
-  const rest = lines.slice(1).join("\n");
-  if (rest.length < 30) return null;
-  return { title: first, description: rest };
-}
-
-function InfoCard({ title, description }: { title: string; description: string }) {
-  // Corrección oficial a la URL de Google Maps para buscar la locación correcta
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(title + " Veracruz")}`;
+// --- INFOCARD REFACTORIZADO ---
+function InfoCard({ name, location, description }: { name: string; location: string; description: string }) {
+  // Construimos el query de búsqueda de Google Maps correctamente
+  const searchQuery = location ? `${name} ${location}, Veracruz` : `${name}, Veracruz`;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchQuery)}`;
   
   return (
     <div className="overflow-hidden rounded-xl border border-border/70 bg-gradient-to-br from-background to-muted/40">
@@ -387,8 +432,15 @@ function InfoCard({ title, description }: { title: string; description: string }
           <MapPin className="h-5 w-5" strokeWidth={2.25} />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-lg font-semibold tracking-tight text-foreground">{title}</h3>
-          <p className="mt-1.5 whitespace-pre-wrap text-[14.5px] leading-relaxed text-muted-foreground">
+          <h3 className="text-lg font-semibold tracking-tight text-foreground">
+            {name}
+          </h3>
+          {location && (
+            <span className="inline-block mt-1 text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
+              📍 {location}
+            </span>
+          )}
+          <p className="mt-2 whitespace-pre-wrap text-[14.5px] leading-relaxed text-muted-foreground">
             <TypewriterText text={description} />
           </p>
           <a
@@ -398,7 +450,7 @@ function InfoCard({ title, description }: { title: string; description: string }
             className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground shadow-sm transition hover:bg-accent"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            Abrir en Maps
+            Buscar en Maps
           </a>
         </div>
       </div>
@@ -422,9 +474,6 @@ function LoadingBubble() {
   );
 }
 
-// NUEVAS FUNCIONES PARA EL FRONTEND (Markdown y Typewriter)
-
-// Función para procesar negritas (**texto**) y saltos de línea (\n)
 function formatMessage(text: string) {
   return text.split('\n').map((line, lineIndex, array) => {
     const parts = line.split(/(\*\*.*?\*\*)/g);
@@ -447,7 +496,6 @@ function formatMessage(text: string) {
   });
 }
 
-// Componente para pintar el texto letra por letra
 function TypewriterText({ text }: { text: string }) {
   const [displayedText, setDisplayedText] = useState("");
 
@@ -462,7 +510,7 @@ function TypewriterText({ text }: { text: string }) {
       } else {
         clearInterval(timer);
       }
-    }, 8); // Velocidad ultrarrápida a 8 milisegundos
+    }, 8);
 
     return () => clearInterval(timer);
   }, [text]);
