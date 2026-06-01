@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const API_URL = "https://jorgetuz-ras-api-backend.hf.space";
+const API_URL = "https://JorgeTuz/api-turismo.hf.space";
 
 type Message = {
   id: number;
