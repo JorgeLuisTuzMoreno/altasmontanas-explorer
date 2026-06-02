@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
 });
 
 // Variable dinámica: Si VITE_API_URL existe, la usa (Local). Si no, usa Hugging Face (Nube).
-const API_URL = "https://jorgetuz-api-turismo.hf.space";
+const API_URL = "http://localhost:8000";
 
 type Message = {
   id: number;
